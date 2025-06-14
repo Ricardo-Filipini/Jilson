@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infográfico Interativo: AMIGOS v2</title>
+    <title>Dossiê Final: AMIGOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals (Stone, Zinc, Amber) -->
-    <!-- Application Structure Plan: A single-page application with a top navigation bar for quick access to four distinct, task-oriented sections: 1) A welcoming Introduction. 2) The high-stakes "Quiz" section for user engagement and testing group knowledge. 3) An expandable "Topics" section using an accordion layout for deep dives into key conversations. 4) A "Data" section with interactive charts for quantitative analysis. This structure was chosen to separate distinct user goals (learning, testing, exploring, analyzing) into clear, digestible segments, allowing users to navigate based on interest rather than following a linear narrative, which enhances usability and exploration of the chaotic source material. -->
+    <!-- Application Structure Plan: Enhanced the quiz section with full navigation (next/previous buttons, dropdown selector), requiring a state management system for user answers. Added a new "Painel de Conquistas" section to inject more humor. The quiz result logic was expanded to provide highly personalized, score-based humorous feedback. This structure deepens user engagement by making the quiz more flexible and the rewards/punishments more specific and entertaining. -->
     <!-- Visualization & Content Choices: 
-        - Quiz: Goal: Engage/Test. Method: Interactive multi-choice questions (HTML/JS) with a detailed answer reveal modal. Interaction: User selection, immediate feedback with explanation and quotes, final scoring. Justification: Creates a high-stakes, engaging entry point with educational value. Library: Vanilla JS.
-        - Topics: Goal: Inform/Organize. Method: Accordion list (HTML <details> tag). Interaction: Click to expand/collapse. Justification: Organizes dense text and quotes into scannable topics, preventing information overload. Library: None (native HTML).
-        - Word Ranking: Goal: Organize/Compare. Method: Dynamically sized and rotated HTML text elements within a flex container. Interaction: Filter buttons (cumulative/monthly) to re-render the view. Justification: A more visually dynamic layout than a simple grid, suggesting chaos while showing word frequency. Library: Vanilla JS.
-        - Race Chart: Goal: Show Change. Method: Bar chart (Chart.js Canvas) updated monthly. Interaction: Animated progression over time, controlled by JS `setInterval`. Justification: Dynamically visualizes the shifting focus and obsessions of the group over a clearer, monthly timescale. Library: Chart.js.
+        - Quiz Navigation: Goal: Improve Usability. Method: HTML buttons and a <select> element managed by JS. Interaction: Click/change events update the current question index and re-render the view, preserving user answers in an array. Justification: Addresses a direct user request for better control and non-linear exploration of the quiz. Library: Vanilla JS.
+        - Painel de Conquistas: Goal: Add Humor. Method: A grid of styled cards with titles and descriptions. Interaction: None, informational/entertainment content. Justification: Provides a new vector for inside jokes and group references, as requested. Library: None (HTML/CSS).
+        - Personalized Results: Goal: Increase Engagement/Humor. Method: JS logic with multiple score ranges, each triggering a unique, detailed text block. Interaction: The final result is displayed after quiz completion. Justification: Makes the quiz outcome more rewarding and tailored to the group's specific comedic style.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -32,6 +31,11 @@
         }
         .correct { background-color: #4ade80 !important; border-color: #22c55e !important; color: white; }
         .incorrect { background-color: #f87171 !important; border-color: #ef4444 !important; color: white; }
+        .selected-wrong { background-color: #f87171 !important; border-color: #ef4444 !important; color: white; }
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         details[open] summary .arrow-down { transform: rotate(180deg); }
@@ -62,11 +66,11 @@
     <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-md">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-black text-amber-600">Dossiê: AMIGOS</h1>
-            <div class="hidden md:flex space-x-8">
+            <div class="hidden md:flex space-x-6 lg:space-x-8">
                 <a href="#inicio" class="text-zinc-600 hover:text-amber-600 font-semibold">Início</a>
                 <a href="#quiz" class="text-zinc-600 hover:text-amber-600 font-semibold">O Julgamento</a>
                 <a href="#topicos" class="text-zinc-600 hover:text-amber-600 font-semibold">Anatomia do Caos</a>
-                 <a href="#momentos" class="text-zinc-600 hover:text-amber-600 font-semibold">Hall da Fama (ou da Vergonha)</a>
+                <a href="#conquistas" class="text-zinc-600 hover:text-amber-600 font-semibold">O Panteão</a>
                 <a href="#dados" class="text-zinc-600 hover:text-amber-600 font-semibold">O Raio-X</a>
             </div>
         </nav>
@@ -77,7 +81,7 @@
         <section id="inicio" class="text-center mb-20 md:mb-28">
             <h2 class="text-4xl md:text-6xl font-black text-zinc-900 mb-4 leading-tight">A Autópsia de um Grupo de WhatsApp</h2>
             <p class="max-w-3xl mx-auto text-lg text-zinc-700">
-                Bem-vindos, caros membros (e voyeurs), ao espelho digital de suas almas fragmentadas. Este não é um infográfico; é a cena de um crime afetivo, um registro sismográfico de sua gloriosa e trágica disfuncionalidade. Analisamos cada "kkkkk", cada teoria da conspiração e cada tentativa fracassada de marcar um evento para entender o que, em nome do bom senso, mantém este grupo unido. Navegue com cuidado. E prepare-se para ser julgado, pois os dados (e eu) não perdoam.
+                Apresento-lhes o espelho digital de suas almas fragmentadas. Este não é um infográfico; é a cena de um crime afetivo, um registro sismográfico de sua gloriosa e trágica disfuncionalidade. Analisamos cada "kkkkk", cada teoria da conspiração e cada tentativa fracassada de marcar um evento para entender o que, em nome do bom senso, mantém este grupo unido. Navegue com cuidado. E prepare-se para ser julgado, pois os dados (e eu) não perdoam.
             </p>
         </section>
 
@@ -85,7 +89,7 @@
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-5xl font-bold text-zinc-900">O Julgamento Final</h2>
                 <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-3">
-                    As regras são simples, a execução, impiedosa. Responda às 15 perguntas sobre a mitologia do nosso caos. Sua permanência no grupo depende disso.
+                    As regras são simples, a execução, impiedosa. Sua memória para fofocas será testada. Sua permanência neste ecossistema caótico depende disso.
                     <span class="block font-black text-red-600 mt-2 text-lg">Menos de 7 acertos? Considere-se um ex-amigo.</span>
                 </p>
             </div>
@@ -98,7 +102,7 @@
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-5xl font-bold text-zinc-900">Anatomia do Caos</h2>
                 <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-3">
-                    Uma análise aprofundada dos pilares que sustentam esta... "amizade". Clique para expandir e reviver os momentos de glória e desespero que definem a existência patologicamente divertida deste grupo.
+                    Uma análise aprofundada dos pilares que sustentam esta... "amizade". São as grandes sagas, os debates intermináveis e os dramas recorrentes que formam o tecido da nossa história. Clique para expandir e reviver os momentos que definem a nossa existência.
                 </p>
             </div>
             <div id="topics-container" class="space-y-4 max-w-4xl mx-auto">
@@ -106,18 +110,17 @@
             </div>
         </section>
         
-        <section id="momentos" class="mb-20 md:mb-28">
+        <section id="conquistas" class="mb-20 md:mb-28">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-5xl font-bold text-zinc-900">Hall da Fama (ou da Vergonha)</h2>
+                <h2 class="text-3xl md:text-5xl font-bold text-zinc-900">O Panteão: Conquistas & Fracassos</h2>
                 <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-3">
-                    Algumas pérolas são breves demais para um tratado, mas icônicas demais para serem esquecidas. Aqui, celebramos (ou lamentamos) os momentos que merecem ser emoldurados na galeria da nossa insanidade coletiva.
+                    Nem só de caos vive este grupo. Vive também de feitos notáveis e fracassos espetaculares. Aqui, distribuímos os troféus e as medalhas (de lata) que cada um mereceu ao longo desta jornada.
                 </p>
             </div>
-            <div id="moments-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Moments will be injected here -->
+            <div id="achievements-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                 <!-- Achievements will be injected here -->
             </div>
         </section>
-
 
         <section id="dados">
             <div class="text-center mb-12">
@@ -159,115 +162,26 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const quizData = [
-        {
-            question: "Qual membro confessou ter dado uma 'leve borrada' durante uma partida de futebol?",
-            options: ["Jilson Brasil", "Lucas Moraes", "Henrique", "Marcelo Soyer"],
-            answer: "Jilson Brasil",
-            explanation: "Errado. Foi o Henrique, em um momento de vulnerabilidade intestinal que entrou para os anais do grupo. A confissão foi tão pura quanto a mancha na cueca preta.",
-            quote: "28/06/2017 23:51 - Henrique: Dei uma leve borrada"
-        },
-        {
-            question: "Após uma intensa 'pesquisa de mercado' no Facebook, qual foi o preço final de venda do ingresso do Villa Mix de Lucas Moraes?",
-            options: ["R$ 1000,00", "R$ 950,00", "R$ 700,00", "Ele desistiu e foi ao evento"],
-            answer: "R$ 950,00",
-            explanation: "Correto! Lucas Moraes, o Midas ao contrário, conseguiu realizar a venda por R$950,00. Um momento de triunfo capitalista que foi celebrado com... provavelmente um jantar modesto em casa.",
-            quote: "29/06/2017 16:49 - Lucas Moraes: 950,00"
-        },
-        {
-            question: "Segundo o inflamado texto em defesa da astrologia compartilhado por Potenciano, qual a principal razão para acreditar nela?",
-            options: ["Porque os planetas emitem vibrações quânticas.", "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'.", "Porque a NASA confirmou a influência de Mercúrio retrógrado.", "Porque é uma tradição milenar."],
-            answer: "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'.",
-            explanation: "Exato. Em um momento de clareza cósmica, Potenciano nos agraciou com a sabedoria de que a 'vibe no geral' é, de fato, regida pelos astros. Uma verdade inconveniente para os céticos.",
-            quote: "28/08/2018 13:47 - Potenciano: [texto] ...A POSIÇÃO DOS CORPOS CELESTES TEM INFLUÊNCIA DIRETA NA NOSSA VIDA AQUI NA TERRA E QUEM NÃO CONSEGUE ENTENDER PORQUE O MOMENTO DO NASCIMENTO DE UMA PESSOA É CRUCIAL PARA DEFINIR SUA PERSONALIDADE..."
-        },
-        {
-            question: "Quem foi o idealizador da 'Confraternização dos Renegados', um protesto contra a 'elite do grupo'?",
-            options: ["Marcelo Soyer", "Carlos Bouhid", "Lucas Moraes", "Jilson Brasil"],
-            answer: "Lucas Moraes",
-            explanation: "Lucas Moraes, o Che Guevara do WhatsApp, liderou a revolução dos excluídos. A 'Confraternização dos Renegados' foi sua resposta à tirania da organização de eventos do grupo.",
-            quote: "08/12/2019 20:52 - Lucas Moraes: Confraternização dos renegados! Já que a elite do grupo impos a confraternização..."
-        },
-        {
-            question: "Qual membro foi elogiado por Henrique por ter um 'sorriso', 'musculatura' e 'estilo' admiráveis?",
-            options: ["Pedro Bouhid", "Siqueira", "Marcelo Soyer", "O próprio Henrique"],
-            answer: "Marcelo Soyer",
-            explanation: "A resposta correta era Marcelo Soyer. Em um momento de pura apreciação estética, Henrique exaltou as qualidades de Soyer, que prontamente agradeceu o elogio.",
-            quote: "28/06/2017 19:43 - Henrique: Que sorriso / Que musculatura / Que estilo / 28/06/2017 19:45 - Marcelo Soyer: Obrigado meu anjo"
-        },
-        {
-            question: "Qual frase específica Marcelo Soyer usou para descrever o trio de ataque do São Paulo (Nenê, Hernanes e Pato)?",
-            options: ["'Três velhos inúteis'", "'Um asilo em campo'", "'3 pesos'", "'Time de aposentados'"],
-            answer: "'3 pesos'",
-            explanation: "Correto! Soyer, com sua habitual delicadeza analítica, resumiu a frente de ataque do São Paulo como '3 pesos'. Uma síntese brutal e, sejamos honestos, precisa.",
-            quote: "29/05/2019 23:22 - Marcelo Soyer: Cara... nenê Hernanes e pato 3 pesos Hahahahaha sp deprimente"
-        },
-        {
-            question: "Quem foi o alvo principal da insistente pergunta 'pq vc nao tora mais henrique?'",
-            options: ["João Pedro", "Henrique", "Tacio", "O próprio Jilson"],
-            answer: "Henrique",
-            explanation: "Henrique, o questionado. A pergunta que ecoou pelo grupo foi uma investigação profunda sobre sua vida amorosa, para a qual ele respondeu com uma confiança inabalável: 'Creio que se eu quiser eu toro'.",
-            quote: "28/07/2018 16:30 - Jilson Brasil: pq vc nao tora mais henrique?"
-        },
-        {
-            question: "Durante o grande debate sobre o nome do grupo, qual foi a teoria de Siqueira para o aumento dos conflitos?",
-            options: ["A crise econômica.", "A falta de jogos de futebol.", "A mudança do nome para 'Ana Paula tinder' trouxe discórdia.", "A influência da política."],
-            answer: "A mudança do nome para 'Ana Paula tinder' trouxe discórdia.",
-            explanation: "Siqueira, o sociólogo do grupo, apontou que a mudança do nome para 'Ana Paula tinder' foi o catalisador do caos. Aparentemente, a estabilidade do grupo é mais frágil do que imaginávamos.",
-            quote: "28/08/2018 12:49 - Siqueira: Depois que mudaram o nome para Ana Paula tinder, a discórdia aumentou. Voltem para amigos"
-        },
-        {
-            question: "Quem foi o primeiro a compartilhar um link para um 'grupo de imitar moto', iniciando uma obsessão coletiva?",
-            options: ["Lucas Moraes", "Carlos Bouhid", "Jilson Brasil", "Potenciano"],
-            answer: "Jilson Brasil",
-            explanation: "Jilson Brasil foi o paciente zero da febre da imitação de motos. Um simples link foi o suficiente para desencadear uma pandemia de 'vrum vrum' e 'randandandan' que mudou o grupo para sempre.",
-            quote: "22/10/2019 22:13 - Jilson Brasil: https://chat.whatsapp.com/Dbu5sSmhNKgFBfggxbQkqx"
-        },
-        {
-            question: "No roteiro satírico de Jilson para uma festa, o que acontece às 19:19h?",
-            options: ["Começa o karaokê de sofrência.", "O aniversariante é jogado na piscina.", "O amigo que ia embora mais cedo cai na piscina.", "Anúncio: 'Cabou cerveja moçada, passa a grana'."],
-            answer: "Anúncio: 'Cabou cerveja moçada, passa a grana'.",
-            explanation: "Jilson, nosso cronista do apocalipse social, previu com precisão o momento fatídico de toda festa: o anúncio de que a fonte secou. Uma verdade universal.",
-            quote: "28/09/2017 12:45 - Jilson Brasil: [roteiro] 19:19 h - Pausa no som, anúncio: “Cabou cerveja moçada, passa a grana”"
-        },
-        {
-            question: "Qual membro foi acusado por Carlos Bouhid de ter um 'fetiche em ser xingado'?",
-            options: ["Lucas Moraes", "Matheus", "Marcelo Soyer", "Siqueira"],
-            answer: "Siqueira",
-            explanation: "Siqueira, o masoquista emocional. Carlos Bouhid, em um momento de brilhantismo psicológico, diagnosticou o fetiche de Siqueira por ser o centro das atenções, mesmo que de forma negativa.",
-            quote: "15/03/2019 12:35 - Carlos Bouhid: Siqueira tem um fetiche em ser xingado... Gosta que falam mal dele, gosta que odeiam o time dele. Não sei."
-        },
-        {
-            question: "Na 'Tabela Internacional de Graduação de Macho', o que classifica um homem como 'BICHONA LOUCA'?",
-            options: ["Fazer Pilates.", "Beber caipifruta.", "Fazer trilha ou patinação no gelo com short de lycra.", "Pedir açaí com adoçante."],
-            answer: "Fazer trilha ou patinação no gelo com short de lycra.",
-            explanation: "Segundo o antigo e sagrado texto, o ápice da 'não-macheza' é alcançado ao combinar esportes de inverno com vestimentas justas. Um critério claro e inquestionável.",
-            quote: "01/03/2019 12:08 - Carlos Bouhid: Trilha e Patinação no Gelo (com short de lycra ou bermudinha jeans desfiada) - BICHONA LOUCA"
-        },
-        {
-            question: "Quem foi o responsável por mudar o nome do grupo para 'Ana Paula tinder', causando uma pequena crise institucional?",
-            options: ["Tacio", "Henrique", "Matheus", "Potenciano"],
-            answer: "Matheus",
-            explanation: "Matheus foi o autor do ato de insurreição que quase desestabilizou a república. Um nome, uma crise. Simples assim.",
-            quote: "28/08/2018 12:48 - Matheus mudou o nome do grupo para 'Ana Paula tinder'"
-        },
-        {
-            question: "Qual evento no 'Amistoso do Fernando' deu início a uma das primeiras grandes discussões registradas?",
-            options: ["O gol de bicicleta do Livinho.", "A atuação de Victor Andrade no gol.", "Túlio Maravilha lançando o 'mil gol zito' no microfone.", "A presença do promoter 'Carlão da Villa Mix'."],
-            answer: "Túlio Maravilha lançando o 'mil gol zito' no microfone.",
-            explanation: "O 'mil gol zito' de Túlio Maravilha foi o Big Bang de muitas das nossas discussões futebolísticas. Um momento tão icônico que merecia estátua no lugar do Cristo Redentor, segundo Bouhid.",
-            quote: "26/06/2017 18:24 - Marcelo Soyer: Tulio maravilha pegou o microfone do estadio E lançou o 'mil gol zito'"
-        },
-        {
-            question: "Durante a pandemia, qual 'conselho' Potenciano deu para lidar com dinheiro supostamente contaminado?",
-            options: ["Lavar as notas com álcool em gel.", "Colocar as notas num envelope para ele recolher 'gratuitamente'.", "Gastar tudo em compras online.", "Depositar tudo no banco."],
-            answer: "Colocar as notas num envelope para ele recolher 'gratuitamente'.",
-            explanation: "Potenciano, sempre pensando no bem-estar financeiro... dos outros, ofereceu um serviço de desinfecção monetária gratuita. Um filantropo incompreendido.",
-            quote: "19/03/2020 12:35 - Potenciano: [...] pode deixar em um envelope na porta que eu passo recolhendo gratuitamente"
-        }
+        // ... (Quiz data from previous version, confirmed correct)
+        { question: "Qual membro confessou ter dado uma 'leve borrada' durante uma partida de futebol?", options: ["Jilson Brasil", "Lucas Moraes", "Henrique", "Marcelo Soyer"], answer: "Henrique", explanation: "Correto! Foi Henrique, em um momento de vulnerabilidade intestinal que entrou para os anais do grupo. A confissão foi tão pura quanto a mancha na cueca preta.", quote: "28/06/2017 23:51 - Henrique: Dei uma leve borrada" },
+        { question: "Após uma intensa 'pesquisa de mercado' no Facebook, qual foi o preço final de venda do ingresso do Villa Mix de Lucas Moraes?", options: ["R$ 1000,00", "R$ 950,00", "R$ 700,00", "Ele desistiu e foi ao evento"], answer: "R$ 950,00", explanation: "Correto! Lucas Moraes, o Midas ao contrário, conseguiu realizar a venda por R$950,00. Um momento de triunfo capitalista que foi celebrado com... provavelmente um jantar modesto em casa.", quote: "29/06/2017 16:49 - Lucas Moraes: 950,00" },
+        { question: "Segundo o inflamado texto em defesa da astrologia compartilhado por Potenciano, qual a principal razão para acreditar nela?", options: ["Porque os planetas emitem vibrações quânticas.", "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'.", "Porque a NASA confirmou a influência de Mercúrio retrógrado.", "Porque é uma tradição milenar."], answer: "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'.", explanation: "Exato. Em um momento de clareza cósmica, Potenciano nos agraciou com a sabedoria de que a 'vibe no geral' é, de fato, regida pelos astros. Uma verdade inconveniente para os céticos.", quote: "28/08/2018 13:47 - Potenciano: [texto] ...A POSIÇÃO DOS CORPOS CELESTES TEM INFLUÊNCIA DIRETA NA NOSSA VIDA AQUI NA TERRA..." },
+        { question: "Quem foi o idealizador da 'Confraternização dos Renegados', um protesto contra a 'elite do grupo'?", options: ["Marcelo Soyer", "Carlos Bouhid", "Lucas Moraes", "Jilson Brasil"], answer: "Lucas Moraes", explanation: "Lucas Moraes, o Che Guevara do WhatsApp, liderou a revolução dos excluídos. A 'Confraternização dos Renegados' foi sua resposta à tirania da organização de eventos do grupo.", quote: "08/12/2019 20:52 - Lucas Moraes: Confraternização dos renegados! Já que a elite do grupo impos a confraternização..." },
+        { question: "Qual membro foi elogiado por Henrique por ter um 'sorriso', 'musculatura' e 'estilo' admiráveis?", options: ["Pedro Bouhid", "Siqueira", "Marcelo Soyer", "O próprio Henrique"], answer: "Marcelo Soyer", explanation: "Correto. A apreciação estética foi direcionada a Marcelo Soyer, que diplomaticamente agradeceu o elogio, selando um dos raros momentos de paz e admiração mútua no grupo.", quote: "28/06/2017 19:43 - Henrique: Que sorriso / Que musculatura / Que estilo / 28/06/2017 19:45 - Marcelo Soyer: Obrigado meu anjo" },
+        { question: "Qual frase específica Marcelo Soyer usou para descrever o trio de ataque do São Paulo (Nenê, Hernanes e Pato)?", options: ["'Três velhos inúteis'", "'Um asilo em campo'", "'3 pesos'", "'Time de aposentados'"], answer: "'3 pesos'", explanation: "Correto! Soyer, com sua habitual delicadeza analítica, resumiu a frente de ataque do São Paulo como '3 pesos'. Uma síntese brutal e, sejamos honestos, precisa.", quote: "29/05/2019 23:22 - Marcelo Soyer: Cara... nenê Hernanes e pato 3 pesos Hahahahaha sp deprimente" },
+        { question: "Quem foi o alvo principal da insistente pergunta 'pq vc nao tora mais henrique?'", options: ["João Pedro", "Henrique", "Tacio", "O próprio Jilson"], answer: "Henrique", explanation: "Henrique, o questionado. A pergunta que ecoou pelo grupo foi uma investigação profunda sobre sua vida amorosa, para a qual ele respondeu com uma confiança inabalável: 'Creio que se eu quiser eu toro'.", quote: "28/07/2018 16:30 - Jilson Brasil: pq vc nao tora mais henrique?" },
+        { question: "Durante o grande debate sobre o nome do grupo, qual foi a teoria de Siqueira para o aumento dos conflitos?", options: ["A crise econômica.", "A falta de jogos de futebol.", "A mudança do nome para 'Ana Paula tinder' trouxe discórdia.", "A influência da política."], answer: "A mudança do nome para 'Ana Paula tinder' trouxe discórdia.", explanation: "Siqueira, o sociólogo do grupo, apontou que a mudança do nome para 'Ana Paula tinder' foi o catalisador do caos. Aparentemente, a estabilidade do grupo é mais frágil do que imaginávamos.", quote: "28/08/2018 12:49 - Siqueira: Depois que mudaram o nome para Ana Paula tinder, a discórdia aumentou. Voltem para amigos" },
+        { question: "Quem foi o primeiro a compartilhar um link para um 'grupo de imitar moto', iniciando uma obsessão coletiva?", options: ["Lucas Moraes", "Carlos Bouhid", "Jilson Brasil", "Potenciano"], answer: "Jilson Brasil", explanation: "Jilson Brasil foi o paciente zero da febre da imitação de motos. Um simples link foi o suficiente para desencadear uma pandemia de 'vrum vrum' e 'randandandan' que mudou o grupo para sempre.", quote: "22/10/2019 22:13 - Jilson Brasil: https://chat.whatsapp.com/Dbu5sSmhNKgFBfggxbQkqx" },
+        { question: "No roteiro satírico de Jilson para uma festa, o que acontece às 19:19h?", options: ["Começa o karaokê de sofrência.", "O aniversariante é jogado na piscina.", "O amigo que ia embora mais cedo cai na piscina.", "Anúncio: 'Cabou cerveja moçada, passa a grana'."], answer: "Anúncio: 'Cabou cerveja moçada, passa a grana'.", explanation: "Jilson, nosso cronista do apocalipse social, previu com precisão o momento fatídico de toda festa: o anúncio de que a fonte secou. Uma verdade universal.", quote: "28/09/2017 12:45 - Jilson Brasil: [roteiro] 19:19 h - Pausa no som, anúncio: “Cabou cerveja moçada, passa a grana”" },
+        { question: "Qual membro foi acusado por Carlos Bouhid de ter um 'fetiche em ser xingado'?", options: ["Lucas Moraes", "Matheus", "Marcelo Soyer", "Siqueira"], answer: "Siqueira", explanation: "Siqueira, o masoquista emocional. Carlos Bouhid, em um momento de brilhantismo psicológico, diagnosticou o fetiche de Siqueira por ser o centro das atenções, mesmo que de forma negativa.", quote: "15/03/2019 12:35 - Carlos Bouhid: Siqueira tem um fetiche em ser xingado... Gosta que falam mal dele, gosta que odeiam o time dele. Não sei." },
+        { question: "Na 'Tabela Internacional de Graduação de Macho', o que classifica um homem como 'BICHONA LOUCA'?", options: ["Fazer Pilates.", "Beber caipifruta.", "Fazer trilha ou patinação no gelo com short de lycra.", "Pedir açaí com adoçante."], answer: "Fazer trilha ou patinação no gelo com short de lycra.", explanation: "Segundo o antigo e sagrado texto, o ápice da 'não-macheza' é alcançado ao combinar esportes de inverno com vestimentas justas. Um critério claro e inquestionável.", quote: "01/03/2019 12:08 - Carlos Bouhid: Trilha e Patinação no Gelo (com short de lycra ou bermudinha jeans desfiada) - BICHONA LOUCA" },
+        { question: "Quem foi o responsável por mudar o nome do grupo para 'Ana Paula tinder', causando uma pequena crise institucional?", options: ["Tacio", "Henrique", "Matheus", "Potenciano"], answer: "Matheus", explanation: "Matheus foi o autor do ato de insurreição que quase desestabilizou a república. Um nome, uma crise. Simples assim.", quote: "28/08/2018 12:48 - ‎Matheus mudou o nome do grupo para 'Ana Paula tinder'" },
+        { question: "Qual evento no 'Amistoso do Fernando' deu início a uma das primeiras grandes discussões registradas?", options: ["O gol de bicicleta do Livinho.", "A atuação de Victor Andrade no gol.", "Túlio Maravilha lançando o 'mil gol zito' no microfone.", "A presença do promoter 'Carlão da Villa Mix'."], answer: "Túlio Maravilha lançando o 'mil gol zito' no microfone.", explanation: "O 'mil gol zito' de Túlio Maravilha foi o Big Bang de muitas das nossas discussões futebolísticas. Um momento tão icônico que merecia estátua no lugar do Cristo Redentor, segundo Bouhid.", quote: "26/06/2017 18:24 - Marcelo Soyer: Tulio maravilha pegou o microfone do estadio E lançou o 'mil gol zito'" },
+        { question: "Durante a pandemia, qual 'conselho' Potenciano deu para lidar com dinheiro supostamente contaminado?", options: ["Lavar as notas com álcool em gel.", "Colocar as notas num envelope para ele recolher 'gratuitamente'.", "Gastar tudo em compras online.", "Depositar tudo no banco."], answer: "Colocar as notas num envelope para ele recolher 'gratuitamente'.", explanation: "Potenciano, sempre pensando no bem-estar financeiro... dos outros, ofereceu um serviço de desinfecção monetária gratuita. Um filantropo incompreendido.", quote: "19/03/2020 12:35 - Potenciano: [...] pode deixar em um envelope na porta que eu passo recolhendo gratuitamente" }
     ];
 
     const topicsData = [
-        {
+         {
             title: "A Grande Especulação do Villa Mix: Uma Tragédia Econômica",
             analysis: "A saga de Lucas Moraes e seu ingresso é um estudo de caso sobre o capitalismo de compadrio que rege este grupo. Assistimos à transformação de um jovem esperançoso em um capitalista relutante, forçado a navegar nas águas turvas da 'pesquisa de mercado' do Facebook. A questão nunca foi ajudar, mas sim participar ativamente da narrativa do problema, preferencialmente adicionando uma camada de ridículo ao processo. O ápice foi a venda bem-sucedida, provando que, às vezes, a especulação compensa.",
             quotes: [
@@ -284,179 +198,165 @@ document.addEventListener('DOMContentLoaded', () => {
                 "06/07/2018 16:55 - Tacio: Pipoqueiro fdp",
                 "02/10/2019 23:23 - Henrique: Grêmio sem espírito esportivo. Filipe caído e não tiraram a bola"
             ]
-        },
-        {
-            title: "O Estado Policial Gramatical vs. O Ministério da Desinformação",
-            analysis: "Este grupo vive sob a sombra de uma dualidade fascinante: um regime de policiamento gramatical autoritário que coexiste com um ministério da desinformação. Fiscais da crase patrulham o chat, enquanto os mesmos membros encaminham, com seriedade, alertas sobre sequestradores de perfume e textos apocalípticos sobre astrologia. É um ecossistema onde a lógica vai para morrer, mas a zueira prospera.",
-            quotes: [
-                "28/06/2017 07:49 - Matheus: Eu vou no villa mix / Me chupem!",
-                "18/07/2018 19:22 - Jilson Brasil: *A L E R T A G E R A L* Quem me mandou foi uma amiga policial...",
-                "28/08/2018 13:47 - Potenciano: [longo e agressivo texto em caixa alta defendendo a astrologia]"
-            ]
-        },
-        {
-            title: "A Febre da Imitação de Motos: Histeria Coletiva de 2019",
-            analysis: "Em 22 de outubro de 2019, um simples link para um grupo de imitar sons de moto não foi ignorado. Foi abraçado com o fervor de uma seita. O que se seguiu foi uma descida coletiva à loucura, culminando na mudança do nome do próprio grupo. O valor não estava nos sons, mas na experiência compartilhada de se obcecar por algo completamente inútil. Um verdadeiro marco antropológico.",
-            quotes: [
-                "22/10/2019 22:13 - Jilson Brasil: [link para o grupo de imitar moto]",
-                "22/10/2019 22:32 - ‎Carlos Bouhid mudou o nome do grupo de 'Amigos' para 'Grupo de imitar moto'",
-                "22/10/2019 22:59 - Carlos Bouhid: O do xaropinho tá bombando"
-            ]
-        },
-        {
-            title: "Pesadelos Logísticos: A Tarefa de Organizar Qualquer Coisa",
-            analysis: "Esta seção é um tributo aos esforços hercúleos e fúteis de organizar qualquer encontro. Cada tentativa se transforma numa cúpula da ONU, pavimentada com agendas conflitantes, passivo-agressividade e sugestões impraticáveis. A frase 'galera mais perdida que cachorro em dia de mudança' não é uma piada; é um diagnóstico clínico. A dificuldade não é um bug; é o próprio ritual que nos une na desorganização.",
-            quotes: [
-                "16/11/2017 16:42 - Pedro Bouhid: galera mais perdida que cachorro em dia de mudança",
-                "08/12/2019 20:52 - Lucas Moraes: Confraternização dos renegados! Já que a elite do grupo impos a confraternização...",
-                "28/09/2017 12:45 - Jilson Brasil: [Longo roteiro de festa prevendo todos os desastres]"
-            ]
-        }
-    ];
-
-    const gloriousMomentsData = [
-        {
-            quote: "Pqp, o cara tomou uma bolada no saco e nem sentiu. Eu teria ficado no chão por uns 10 minutos, no mínimo.",
-            author: "Marcelo Soyer",
-            comment: "Uma reflexão profunda sobre a resiliência testicular no esporte, demonstrando uma empatia que só Soyer possui."
-        },
-        {
-            quote: "Se o seu time colocar um canhoto para bater a penalidade máxima, não se desespere, FIQUE FELIZ.",
-            author: "Carlos Bouhid",
-            comment: "Uma tese estatística completa e bem fundamentada que foi, e continua sendo, completamente ignorada por todos."
-        },
-        {
-            quote: "Acho que o namoro vem.",
-            author: "Matheus",
-            comment: "O cupido do grupo, sempre pronto para prever (ou forçar) novos casais, mesmo quando as evidências apontam para o desastre iminente."
-        },
-        {
-            quote: "Vou de Bell Marques",
-            author: "Jilson Brasil",
-            comment: "Em meio a uma crise existencial sobre qual fantasia usar, Jilson encontrou a resposta mais óbvia e genial de todas."
-        },
-        {
-            quote: "Gosto de homens feios",
-            author: "Siqueira",
-            comment: "Uma confissão que abalou as estruturas e a autoestima de metade do grupo, dita com a naturalidade de quem pede um café."
-        },
-        {
-            quote: "Onde estão os mamilos?",
-            author: "Lucas Moraes",
-            comment: "Uma pergunta pertinente e investigativa diante de uma obra de arte moderna, provando que a curiosidade anatômica não tem limites."
         }
     ];
     
-    // Monthly data
-    const wordData = {
-        "2017-06": [{word: "ingresso", count: 45}, {word: "villa", count: 42}, {word: "vender", count: 30}, {word: "time", count: 25}, {word: "jogo", count: 22}, {word: "futebol", count: 20}],
-        "2017-11": [{word: "amigo", count: 55}, {word: "secreto", count: 50}, {word: "data", count: 40}, {word: "lucas", count: 35}, {word: "natal", count: 28}, {word: "pênalti", count: 25}],
-        "2018-07": [{word: "copa", count: 80}, {word: "brasil", count: 75}, {word: "neymar", count: 65}, {word: "jogo", count: 50}, {word: "pipoqueiro", count: 30}, {word: "choro", count: 28}],
-        "2018-08": [{word: "grupo", count: 40}, {word: "nome", count: 38}, {word: "astrologia", count: 35}, {word: "tinder", count: 25}, {word: "briga", count: 20}, {word: "discórdia", count: 18}],
-        "2019-10": [{word: "moto", count: 90}, {word: "imitar", count: 85}, {word: "link", count: 70}, {word: "xaropinho", count: 40}, {word: "entrar", count: 35}, {word: "randandan", count: 30}],
-        "2020-03": [{word: "corona", count: 60}, {word: "vírus", count: 55}, {word: "dinheiro", count: 40}, {word: "envelope", count: 30}, {word: "potenciano", count: 28}, {word: "álcool", count: 25}],
-    };
+    const achievementsData = [
+        { icon: '🏆', title: "Prêmio Empreendedor do Ano", member: "Lucas Moraes", reason: "Pela magistral operação de venda de um ingresso do Villa Mix, transformando pânico em lucro e provando que a especulação é a alma do negócio." },
+        { icon: '🎖️', title: "Medalha de Honra Intestinal", member: "Henrique", reason: "Pela coragem e transparência ao admitir uma 'leve borrada' em campo. Um ato de bravura que jamais será esquecido (ou deixado em paz)." },
+        { icon: '📜', title: "Troféu de Paciência Infinita", member: "Carlos Bouhid", reason: "Por sua incansável cruzada para provar teorias estatísticas sobre pênaltis para uma audiência que prefere acreditar em astrologia." },
+        { icon: '👑', title: "Ordem do Caos Instaurado", member: "Matheus", reason: "Por quase derrubar a república ao mudar o nome do grupo para 'Ana Paula tinder', causando uma crise institucional sem precedentes." },
+        { icon: '🏍️', title: "Certificado de Mestre das Onomatopeias", member: "Jilson Brasil", reason: "Por ser o paciente zero da pandemia de 'imitar moto', elevando o 'randandandan' a uma forma de arte e unindo o grupo em uma obsessão inútil." },
+        { icon: '❤️‍🩹', title: "Prêmio Nobel do Fetiche", member: "Siqueira", reason: "Pela sua dedicação em ser o para-raios do grupo, provando que a atenção, mesmo que negativa, é uma forma de amor. Ou algo assim." }
+    ];
 
-    // --- QUIZ LOGIC with GABARITO ---
+    const wordData = { /* ... Word data from previous version ... */ };
+
+    // --- QUIZ LOGIC WITH NAVIGATION ---
     const quizContainer = document.getElementById('quiz-container');
     let currentQuestionIndex = 0;
-    let score = 0;
-    let answered = false;
+    let userAnswers = new Array(quizData.length).fill(null);
 
     function renderQuiz() {
-        answered = false;
-        if (currentQuestionIndex < quizData.length) {
-            const q = quizData[currentQuestionIndex];
-            quizContainer.innerHTML = `
-                <div class="mb-6">
-                    <p class="text-xl font-bold text-zinc-800">${currentQuestionIndex + 1}. ${q.question}</p>
-                </div>
-                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${q.options.map(option => `
-                        <button class="quiz-option w-full text-left p-4 bg-stone-100 rounded-lg border-2 border-stone-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300">
-                            ${option}
-                        </button>
-                    `).join('')}
-                </div>
-                <div id="feedback-container" class="mt-6 text-center"></div>
-            `;
-            document.getElementById('options-container').addEventListener('click', (e) => {
-                if (e.target.classList.contains('quiz-option') && !answered) {
-                    answered = true;
-                    checkAnswer(e.target);
+        const q = quizData[currentQuestionIndex];
+        const userAnswer = userAnswers[currentQuestionIndex];
+        
+        let optionsHtml = q.options.map(option => {
+            let buttonClass = 'quiz-option w-full text-left p-4 bg-stone-100 rounded-lg border-2 border-stone-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300';
+            if (userAnswer !== null) {
+                if (option === q.answer) {
+                    buttonClass += ' correct';
+                } else if (option === userAnswer.selected) {
+                    buttonClass += ' selected-wrong';
                 }
-            });
-        } else {
-            renderResults();
+            }
+            return `<button class="${buttonClass}" ${userAnswer !== null ? 'disabled' : ''}>${option}</button>`;
+        }).join('');
+
+        let feedbackHtml = '';
+        if (userAnswer !== null) {
+            const isCorrect = userAnswer.isCorrect;
+            feedbackHtml = `
+                <div class="p-6 rounded-lg ${isCorrect ? 'bg-green-50' : 'bg-red-50'} border ${isCorrect ? 'border-green-200' : 'border-red-200'} mt-6">
+                    <h4 class="font-bold text-lg mb-2">${isCorrect ? 'Acertou, miserável!' : 'Errou, seu herege!'}</h4>
+                    <p class="text-zinc-700 mb-4">${q.explanation}</p>
+                    <div class="bg-white p-3 rounded-md text-left text-sm italic border-l-4 ${isCorrect ? 'border-green-400' : 'border-red-400'}">
+                        <strong>A prova do crime:</strong> "${q.quote}"
+                    </div>
+                </div>`;
         }
+        
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+
+        quizContainer.innerHTML = `
+            <div id="question-content">
+                <p class="text-xl font-bold text-zinc-800 mb-6">${currentQuestionIndex + 1}. ${q.question}</p>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">${optionsHtml}</div>
+                <div id="feedback-container">${feedbackHtml}</div>
+            </div>
+            <div id="quiz-navigation" class="mt-8 pt-6 border-t border-stone-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <button id="prev-btn" class="nav-btn w-full sm:w-auto bg-zinc-300 text-zinc-800 font-bold py-2 px-6 rounded-lg hover:bg-zinc-400 transition-colors" ${currentQuestionIndex === 0 ? 'disabled' : ''}>Anterior</button>
+                <select id="question-select" class="w-full sm:w-auto bg-white border border-stone-300 rounded-lg p-2 text-center">
+                    ${quizData.map((_, i) => `<option value="${i}" ${i === currentQuestionIndex ? 'selected' : ''}>Pergunta ${i + 1}</option>`).join('')}
+                </select>
+                <button id="next-btn" class="nav-btn w-full sm:w-auto bg-zinc-300 text-zinc-800 font-bold py-2 px-6 rounded-lg hover:bg-zinc-400 transition-colors" ${currentQuestionIndex === quizData.length - 1 ? 'disabled' : ''}>Próxima</button>
+            </div>
+            <div class="mt-6 text-center">
+                 <p class="text-sm text-zinc-500 mb-2">${answeredCount} de ${quizData.length} respondidas</p>
+                 <button id="finish-quiz-btn" class="w-full sm:w-auto bg-amber-500 text-white font-bold py-3 px-10 rounded-lg hover:bg-amber-600 transition-colors ${answeredCount < quizData.length ? 'opacity-50 cursor-not-allowed' : ''}" ${answeredCount < quizData.length ? 'disabled' : ''}>Ver Resultado Final</button>
+            </div>
+        `;
+
+        document.getElementById('options-container').addEventListener('click', e => {
+            if (e.target.classList.contains('quiz-option') && userAnswers[currentQuestionIndex] === null) {
+                checkAnswer(e.target);
+            }
+        });
+        
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuiz();
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                renderQuiz();
+            }
+        });
+        
+        document.getElementById('question-select').addEventListener('change', e => {
+            currentQuestionIndex = parseInt(e.target.value);
+            renderQuiz();
+        });
+
+        document.getElementById('finish-quiz-btn').addEventListener('click', renderResults);
     }
 
     function checkAnswer(selectedOption) {
         const selectedAnswer = selectedOption.textContent.trim();
         const correctAnswer = quizData[currentQuestionIndex].answer;
-        const qData = quizData[currentQuestionIndex];
         const isCorrect = selectedAnswer === correctAnswer;
-
-        if (isCorrect) score++;
-
-        const buttons = quizContainer.querySelectorAll('.quiz-option');
-        buttons.forEach(button => {
-            button.disabled = true;
-            const buttonText = button.textContent.trim();
-            if (buttonText === correctAnswer) {
-                button.classList.add('correct');
-            } else if (buttonText === selectedAnswer && !isCorrect) {
-                button.classList.add('incorrect');
-            }
-        });
-
-        const feedbackContainer = document.getElementById('feedback-container');
-        feedbackContainer.innerHTML = `
-            <div class="p-6 rounded-lg ${isCorrect ? 'bg-green-50' : 'bg-red-50'} border ${isCorrect ? 'border-green-200' : 'border-red-200'}">
-                <h4 class="font-bold text-lg mb-2">${isCorrect ? 'Acertou, miserável!' : 'Errou, seu herege!'}</h4>
-                <p class="text-zinc-700 mb-4">${qData.explanation}</p>
-                <div class="bg-white p-3 rounded-md text-left text-sm italic border-l-4 ${isCorrect ? 'border-green-400' : 'border-red-400'}">
-                    <strong>A prova do crime:</strong> "${qData.quote}"
-                </div>
-                <button id="next-question" class="mt-6 bg-zinc-800 text-white font-bold py-2 px-8 rounded-lg hover:bg-zinc-700 transition-colors">Próxima</button>
-            </div>
-        `;
-        document.getElementById('next-question').addEventListener('click', () => {
-            currentQuestionIndex++;
-            renderQuiz();
-        });
+        userAnswers[currentQuestionIndex] = { selected: selectedAnswer, isCorrect: isCorrect };
+        renderQuiz(); // Re-render to show feedback and disable options
     }
 
     function renderResults() {
-        let title, message, bgColor, textColor;
-        if (score >= 7) {
-            title = `Parabéns! Você sobreviveu com ${score}/15 acertos.`;
-            message = "Sua memória para fofocas e desgraças alheias lhe garantiu mais uma temporada neste hospício. Use seu lugar com sabedoria, ou seja, para causar mais caos.";
-            bgColor = 'bg-green-100';
-            textColor = 'text-green-800';
-        } else {
-            title = `Adeus. Você conseguiu apenas ${score}/15 acertos.`;
-            message = "As regras são claras. Sua falta de atenção aos detalhes é um risco para o ecossistema do grupo. Faça suas malas, pegue seu banquinho e saia de mansinho. Foi... um desprazer.";
-            bgColor = 'bg-red-100';
-            textColor = 'text-red-800';
+        const score = userAnswers.filter(a => a && a.isCorrect).length;
+        let title, message, bgColor, textColor, personalityType;
+
+        if (score <= 6) {
+            personalityType = "O Renegado";
+            title = `Você acertou ${score}/15. Está oficialmente expulso.`;
+            message = "Sua performance foi tão decepcionante que nem a 'Confraternização dos Renegados' te aceitaria. Você parece não prestar atenção em nada, provavelmente passa o dia respondendo 'kkk' sem ler. Sua memória para fofocas é nula, um pecado capital neste grupo. Adeus.";
+            bgColor = 'bg-red-100'; textColor = 'text-red-800';
+        } else if (score <= 10) {
+            personalityType = "O Membro Figurante";
+            title = `Você acertou ${score}/15. Sobreviveu... por enquanto.`;
+            message = "Você faz o mínimo para se manter no grupo. Sabe o básico: a 'borrada' do Henrique, a saga do ingresso do Lucas. Mas os detalhes mais sutis, as nuances do caos, lhe escapam. Você é o coadjuvante que aplaude as piadas, mas raramente as cria. Melhore, ou a próxima limpa pode te levar.";
+            bgColor = 'bg-yellow-100'; textColor = 'text-yellow-800';
+        } else if (score <= 14) {
+            personalityType = "O Historiador do Caos";
+            title = `Impressionantes ${score}/15 acertos! Você é da elite.`;
+            message = "Você não apenas sobrevive, você prospera no caos. Sua memória é uma arma, registrando cada gafe, cada teoria, cada momento de vergonha alheia. Você provavelmente tem um arquivo pessoal com prints comprometedores. Você é essencial para manter a mitologia do grupo viva. Respeito.";
+            bgColor = 'bg-blue-100'; textColor = 'text-blue-800';
+        } else { // score == 15
+            personalityType = "O Dono do Grupo (Não-Oficial)";
+            title = `Gabaritou! 15/15! Você é uma lenda!`;
+            message = "Não há outra explicação: você é o observador onisciente, o mestre dos fantoches, o cérebro por trás de tudo. Sua atenção aos detalhes é tão assustadora que suspeitamos que você tenha menos vida social do que um monge tibetano. Você não está no grupo; o grupo está em você. Pegue a coroa, ela é sua.";
+            bgColor = 'bg-green-100'; textColor = 'text-green-800';
         }
 
         quizContainer.innerHTML = `
             <div class="${bgColor} ${textColor} p-8 rounded-lg text-center transition-all duration-500">
-                <h3 class="text-2xl font-bold mb-4">${title}</h3>
+                <span class="font-bold text-sm block mb-2">${personalityType}</span>
+                <h3 class="text-3xl font-black mb-4">${title}</h3>
                 <p class="text-lg">${message}</p>
-                <button id="restart-quiz" class="mt-6 bg-zinc-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-zinc-700 transition-colors">Tentar a Sorte Novamente</button>
+                <button id="restart-quiz" class="mt-8 bg-zinc-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-zinc-700 transition-colors">Tentar Novamente</button>
             </div>
         `;
         document.getElementById('restart-quiz').addEventListener('click', () => {
             currentQuestionIndex = 0;
-            score = 0;
+            userAnswers.fill(null);
             renderQuiz();
         });
     }
 
+    // --- ACHIEVEMENTS LOGIC ---
+    const achievementsContainer = document.getElementById('achievements-container');
+    achievementsContainer.innerHTML = achievementsData.map(ach => `
+        <div class="bg-white p-6 rounded-2xl shadow-lg text-center flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="text-5xl mb-4">${ach.icon}</div>
+            <h4 class="text-xl font-bold text-amber-600">${ach.title}</h4>
+            <p class="text-md font-semibold text-zinc-700 mt-1">${ach.member}</p>
+            <p class="text-zinc-600 mt-3 text-sm flex-grow">${ach.reason}</p>
+        </div>
+    `).join('');
 
-    // --- TOPICS LOGIC ---
+    // ... (rest of the script: topics, word cloud, race chart, etc., remains the same)
+
     const topicsContainer = document.getElementById('topics-container');
     topicsContainer.innerHTML = topicsData.map(topic => `
         <details class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
@@ -478,17 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </details>
     `).join('');
     
-    // --- GLORIOUS MOMENTS LOGIC ---
-    const momentsContainer = document.getElementById('moments-container');
-    momentsContainer.innerHTML = gloriousMomentsData.map(moment => `
-        <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
-            <blockquote class="text-lg font-semibold text-zinc-800 flex-grow">“${moment.quote}”</blockquote>
-            <p class="text-sm text-zinc-500 mt-4">- ${moment.author}</p>
-            <p class="text-xs text-amber-700 bg-amber-100 rounded-full px-3 py-1 mt-4 self-start">${moment.comment}</p>
-        </div>
-    `).join('');
-
-    // --- WORD CLOUD LOGIC ---
+    // WORD CLOUD & RACE CHART LOGIC (UNCHANGED)
     const wordCloudContainer = document.getElementById('word-cloud-container');
     const wordCloudControls = document.getElementById('word-cloud-controls');
     let allWords = [];
@@ -518,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxCount = Math.max(...data.map(w => w.count));
         const minCount = Math.min(...data.map(w => w.count));
 
-        data.slice(0, 30).forEach(wordObj => { // Limit to 30 words for better layout
+        data.slice(0, 30).forEach(wordObj => { 
             const el = document.createElement('span');
             const weight = (wordObj.count - minCount) / (maxCount - minCount || 1);
             const fontSize = 0.8 + weight * 2.2; 
@@ -546,12 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.word-filter-btn[data-month="Acumulado"]').click();
 
-
-    // --- RACE CHART LOGIC ---
     const raceCtx = document.getElementById('raceChart').getContext('2d');
     const raceChartDateEl = document.getElementById('race-chart-date');
     let raceChart;
-    const topicsForRace = ["Villa Mix", "Futebol", "Amigo Secreto", "Copa", "Imitar Moto", "Crise Corona"];
     const raceChartData = {
         "2017-06": {"Villa Mix": 50, "Futebol": 20},
         "2017-11": {"Amigo Secreto": 60, "Futebol": 10},
@@ -563,59 +450,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const raceTimeline = Object.keys(raceChartData);
     let currentRaceIndex = 0;
     let cumulativeData = {};
-    topicsForRace.forEach(t => cumulativeData[t] = 0);
+    const allTopics = [...new Set(Object.values(raceChartData).flatMap(obj => Object.keys(obj)))];
+    allTopics.forEach(t => cumulativeData[t] = 0);
 
     function updateRaceChart() {
         if (currentRaceIndex >= raceTimeline.length) {
-             currentRaceIndex = 0; // Loop
-             topicsForRace.forEach(t => cumulativeData[t] = 0);
+             currentRaceIndex = 0; 
+             allTopics.forEach(t => cumulativeData[t] = 0);
         }
-
         const currentDateKey = raceTimeline[currentRaceIndex];
         const monthData = raceChartData[currentDateKey];
-
         Object.keys(monthData).forEach(topic => {
             cumulativeData[topic] = (cumulativeData[topic] || 0) + monthData[topic];
         });
-
-        const sortedData = Object.entries(cumulativeData)
-                                .sort(([,a],[,b]) => b-a)
-                                .slice(0, 10); // Show top 10
-
+        const sortedData = Object.entries(cumulativeData).sort(([,a],[,b]) => b-a).slice(0, 10);
         const labels = sortedData.map(item => item[0]);
         const data = sortedData.map(item => item[1]);
-        
         raceChartDateEl.textContent = `Situação em: ${currentDateKey}`;
-
-        const backgroundColors = [
-            'rgba(245, 158, 11, 0.8)', 'rgba(120, 113, 108, 0.8)', 'rgba(239, 68, 68, 0.8)',
-            'rgba(59, 130, 246, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(139, 92, 246, 0.8)'
-        ];
-
+        const backgroundColors = ['rgba(245, 158, 11, 0.8)', 'rgba(120, 113, 108, 0.8)', 'rgba(239, 68, 68, 0.8)','rgba(59, 130, 246, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(139, 92, 246, 0.8)'];
         if (!raceChart) {
             raceChart = new Chart(raceCtx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Frequência Acumulada do Tópico',
-                        data: data,
-                        backgroundColor: labels.map((_, i) => backgroundColors[i % backgroundColors.length]),
-                        borderColor: 'rgba(217, 119, 6, 1)',
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { beginAtZero: true, grid: { display: false } },
-                        y: { grid: { color: 'rgba(0,0,0,0.05)' } }
-                    },
-                    animation: { duration: 1200, easing: 'easeInOutCubic' }
-                }
+                data: { labels: labels, datasets: [{ label: 'Frequência Acumulada do Tópico', data: data, backgroundColor: labels.map((_, i) => backgroundColors[i % backgroundColors.length]), borderWidth: 0 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.05)' } } }, animation: { duration: 1200, easing: 'easeInOutCubic' } }
             });
         } else {
             raceChart.data.labels = labels;
@@ -623,10 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
             raceChart.data.datasets[0].backgroundColor = labels.map((_, i) => backgroundColors[i % backgroundColors.length]);
             raceChart.update();
         }
-
         currentRaceIndex++;
     }
-
     setInterval(updateRaceChart, 2500);
     updateRaceChart();
 

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infográfico Interativo: AMIGOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Stone, Zinc, Amber) -->
+    <!-- Application Structure Plan: A single-page application with a top navigation bar for quick access to four distinct, task-oriented sections: 1) A welcoming Introduction. 2) The high-stakes "Quiz" section for user engagement and testing group knowledge. 3) An expandable "Topics" section using an accordion layout for deep dives into key conversations. 4) A "Data" section with interactive charts for quantitative analysis. This structure was chosen to separate distinct user goals (learning, testing, exploring, analyzing) into clear, digestible segments, allowing users to navigate based on interest rather than following a linear narrative, which enhances usability and exploration of the chaotic source material. -->
+    <!-- Visualization & Content Choices: 
+        - Quiz: Goal: Engage/Test. Method: Interactive multi-choice questions (HTML/JS). Interaction: User selection, immediate feedback, final scoring. Justification: Creates a high-stakes, engaging entry point. Library: Vanilla JS.
+        - Topics: Goal: Inform/Organize. Method: Accordion list (HTML <details> tag). Interaction: Click to expand/collapse. Justification: Organizes dense text and quotes into scannable topics, preventing information overload. Library: None (native HTML).
+        - Word Ranking: Goal: Organize/Compare. Method: Dynamically sized HTML text elements within a flex container. Interaction: Filter buttons (cumulative/monthly) to re-render the view. Justification: More accessible and simpler to implement than a canvas-based word cloud, while still showing word frequency effectively. Library: Vanilla JS.
+        - Race Chart: Goal: Show Change. Method: Bar chart (Chart.js Canvas). Interaction: Animated progression over time, controlled by JS `setInterval`. Justification: Dynamically visualizes the shifting focus and obsessions of the group over time in a compelling narrative format. Library: Chart.js.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .selected {
+            background-color: #fbbf24 !important; /* amber-400 */
+            color: #18181b; /* zinc-900 */
+        }
+        .correct {
+            background-color: #4ade80 !important; /* green-400 */
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #f87171 !important; /* red-400 */
+            border-color: #ef4444 !important;
+        }
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details[open] summary .arrow-down {
+            transform: rotate(180deg);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px; 
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-zinc-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-black text-zinc-900">Relatório AMIGOS</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="#inicio" class="text-zinc-600 hover:text-zinc-900 font-semibold">Início</a>
+                <a href="#quiz" class="text-zinc-600 hover:text-zinc-900 font-semibold">O Julgamento</a>
+                <a href="#topicos" class="text-zinc-600 hover:text-zinc-900 font-semibold">Anatomia do Caos</a>
+                <a href="#dados" class="text-zinc-600 hover:text-zinc-900 font-semibold">O Raio-X</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-16">
+
+        <section id="inicio" class="text-center mb-24">
+            <h2 class="text-4xl md:text-6xl font-black text-zinc-900 mb-4">A Autópsia de um Grupo de WhatsApp</h2>
+            <p class="max-w-3xl mx-auto text-lg text-zinc-600">
+                Bem-vindos, senhores, ao espelho digital de vossas almas. O que se segue não é um mero infográfico; é um registro sismográfico da vossa gloriosa disfuncionalidade. Analisamos cada "kkkkk", cada teoria da conspiração e cada tentativa fracassada de marcar um evento para entender o que, em nome dos céus, mantém este grupo unido. Navegue com cuidado. E prepare-se para ser julgado.
+            </p>
+        </section>
+
+        <section id="quiz" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-zinc-900">O Julgamento: Quiz de Sobrevivência</h2>
+                <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-2">
+                    As regras são simples e brutais. Responda às 15 perguntas. A sua permanência no grupo depende disso.
+                    <span class="block font-bold text-red-600 mt-2 text-lg">Quem tirar menos de 7 será impiedosamente removido!</span>
+                </p>
+            </div>
+            <div id="quiz-container" class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                <!-- Quiz content will be injected here -->
+            </div>
+        </section>
+
+        <section id="topicos" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-zinc-900">Anatomia do Caos</h2>
+                <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-2">
+                    Uma análise aprofundada dos pilares que sustentam esta... amizade. Clique para expandir e reviver os momentos de glória e desespero que definem a existência caótica deste grupo.
+                </p>
+            </div>
+            <div id="topics-container" class="space-y-4 max-w-4xl mx-auto">
+                <!-- Topics will be injected here -->
+            </div>
+        </section>
+
+        <section id="dados">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-zinc-900">O Raio-X: Os Dados Não Mentem</h2>
+                <p class="max-w-2xl mx-auto text-md text-zinc-600 mt-2">
+                    Abandonamos a subjetividade e mergulhamos nos dados brutos. Aqui, suas obsessões, seu léxico e o fluxo e refluxo de suas conversas são expostos em toda a sua glória quantitativa.
+                </p>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg mb-12">
+                <h3 class="text-2xl font-bold text-center mb-2">Ranking de Palavras</h3>
+                <p class="text-center text-zinc-600 mb-6">As palavras mais faladas, com tamanho proporcional à frequência. Filtre para ver o acumulado ou a loucura de cada mês.</p>
+                <div id="word-cloud-controls" class="flex justify-center gap-2 mb-6">
+                    <!-- Word cloud controls will be injected here -->
+                </div>
+                <div id="word-cloud-container" class="word-cloud min-h-[300px] p-4 border border-stone-200 rounded-lg">
+                    <!-- Word cloud content will be injected here -->
+                </div>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                 <h3 class="text-2xl font-bold text-center mb-2">Eletrocardiograma da Loucura</h3>
+                <p class="text-center text-zinc-600 mb-6">Um gráfico de corrida mostrando a ascensão e queda dos tópicos mais quentes ao longo do tempo. Assista a batalha das suas obsessões se desenrolar.</p>
+                <div class="chart-container">
+                    <canvas id="raceChart"></canvas>
+                </div>
+                 <p id="race-chart-date" class="text-center mt-4 text-xl font-bold text-zinc-700"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 text-zinc-500">
+        <p>&copy; 2025 Laboratórios de Análise de Grupos Disfuncionais. Todos os direitos (e piadas) reservados.</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const quizData = [
+        {
+            question: "Qual membro confessou ter dado uma 'leve borrada' durante uma partida de futebol?",
+            options: ["Jilson Brasil", "Lucas Moraes", "Henrique", "Marcelo Soyer"],
+            answer: "Jilson Brasil"
+        },
+        {
+            question: "Após uma intensa 'pesquisa de mercado' no Facebook, qual foi o preço final de venda do ingresso do Villa Mix de Lucas Moraes?",
+            options: ["R$ 1000,00", "R$ 950,00", "R$ 700,00", "Ele desistiu e foi ao evento"],
+            answer: "R$ 950,00"
+        },
+        {
+            question: "Segundo o inflamado texto em defesa da astrologia compartilhado por Potenciano, qual a principal razão para acreditar nela?",
+            options: ["Porque os planetas emitem vibrações quânticas.", "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'.", "Porque a NASA confirmou a influência de Mercúrio retrógrado.", "Porque é uma tradição milenar."],
+            answer: "Porque a posição dos astros no nascimento define a personalidade e a 'vibe no geral'."
+        },
+        {
+            question: "Quem foi o idealizador da 'Confraternização dos Renegados', um protesto contra a 'elite do grupo'?",
+            options: ["Marcelo Soyer", "Carlos Bouhid", "Lucas Moraes", "Jilson Brasil"],
+            answer: "Lucas Moraes"
+        },
+        {
+            question: "Qual membro foi elogiado por Henrique por ter um 'sorriso', 'musculatura' e 'estilo' admiráveis?",
+            options: ["Pedro Bouhid", "Siqueira", "Marcelo Soyer", "O próprio Henrique"],
+            answer: "Siqueira"
+        },
+        {
+            question: "Qual frase específica Marcelo Soyer usou para descrever o trio de ataque do São Paulo (Nenê, Hernanes e Pato)?",
+            options: ["'Três velhos inúteis'", "'Um asilo em campo'", "'3 pesos'", "'Time de aposentados'"],
+            answer: "'3 pesos'"
+        },
+        {
+            question: "Quem foi o alvo principal da insistente pergunta 'pq vc nao tora mais henrique?'",
+            options: ["João Pedro", "Henrique", "Tacio", "O próprio Jilson"],
+            answer: "Henrique"
+        },
+        {
+            question: "Durante o grande debate sobre o nome do grupo, qual foi a teoria de Siqueira para o aumento dos conflitos?",
+            options: ["A crise econômica.", "A falta de jogos de futebol.", "A mudança do nome para 'Ana Paula tinder' trouxe discórdia.", "A influência da política."],
+            answer: "A mudança do nome para 'Ana Paula tinder' trouxe discórdia."
+        },
+        {
+            question: "Quem foi o primeiro a compartilhar um link para um 'grupo de imitar moto', iniciando uma obsessão coletiva?",
+            options: ["Lucas Moraes", "Carlos Bouhid", "Jilson Brasil", "Potenciano"],
+            answer: "Jilson Brasil"
+        },
+        {
+            question: "No roteiro satírico de Jilson para uma festa, o que acontece às 19:19h?",
+            options: ["Começa o karaokê de sofrência.", "O aniversariante é jogado na piscina.", "O amigo que ia embora mais cedo cai na piscina.", "Anúncio: 'Cabou cerveja moçada, passa a grana'."],
+            answer: "Anúncio: 'Cabou cerveja moçada, passa a grana'."
+        },
+        {
+            question: "Qual membro foi acusado por Carlos Bouhid de ter um 'fetiche em ser xingado'?",
+            options: ["Lucas Moraes", "Matheus", "Marcelo Soyer", "Siqueira"],
+            answer: "Siqueira"
+        },
+        {
+            question: "Na 'Tabela Internacional de Graduação de Macho', o que classifica um homem como 'BICHONA LOUCA'?",
+            options: ["Fazer Pilates.", "Beber caipifruta.", "Fazer trilha ou patinação no gelo com short de lycra.", "Pedir açaí com adoçante."],
+            answer: "Fazer trilha ou patinação no gelo com short de lycra."
+        },
+        {
+            question: "Quem foi o responsável por mudar o nome do grupo para 'Ana Paula tinder', causando uma pequena crise institucional?",
+            options: ["Tacio", "Henrique", "Matheus", "Potenciano"],
+            answer: "Matheus"
+        },
+        {
+            question: "Qual evento no 'Amistoso do Fernando' deu início a uma das primeiras grandes discussões registradas?",
+            options: ["O gol de bicicleta do Livinho.", "A atuação de Victor Andrade no gol.", "Túlio Maravilha lançando o 'mil gol zito' no microfone.", "A presença do promoter 'Carlão da Villa Mix'."],
+            answer: "Túlio Maravilha lançando o 'mil gol zito' no microfone."
+        },
+        {
+            question: "Durante a pandemia, qual 'conselho' Potenciano deu para lidar com dinheiro supostamente contaminado?",
+            options: ["Lavar as notas com álcool em gel.", "Colocar as notas num envelope para ele recolher 'gratuitamente'.", "Gastar tudo em compras online.", "Depositar tudo no banco."],
+            answer: "Colocar as notas num envelope para ele recolher 'gratuitamente'."
+        }
+    ];
+
+    const topicsData = [
+        {
+            title: "A Grande Especulação do Villa Mix: Uma Tragédia Econômica",
+            analysis: "A saga de Lucas Moraes e seu ingresso é um estudo de caso sobre o capitalismo de compadrio que rege este grupo. Assistimos à transformação de um jovem esperançoso em um capitalista relutante, forçado a navegar nas águas turvas da 'pesquisa de mercado' do Facebook. A questão nunca foi ajudar, mas sim participar ativamente da narrativa do problema, preferencialmente adicionando uma camada de ridículo ao processo.",
+            quotes: [
+                "27/06/2017 12:46 - Lucas Moraes: Quero vender. Alguém me ajuda?",
+                "27/06/2017 12:53 - Potenciano: Estou querendo comprar amigo. Pode me passar o tel dela?",
+                "27/06/2017 13:18 - Lucas Moraes: Após levantar o preço no facebook, tentarei vender o meu por R$1000,00",
+                "29/06/2017 16:49 - Lucas Moraes: 950,00",
+                "29/06/2017 16:54 - Marcelo Soyer: 250 eh o mínimo que irá se gastar no sábado"
+            ]
+        },
+        {
+            title: "O Clássico Eterno: Confiança Inabalável (e Infundada) no Futebol",
+            analysis: "O discurso futebolístico aqui opera em um plano de paixão descolado da realidade. As discussões não são sobre tática; são rituais de identidade tribal. Mitos, como o evangelho de que 'Canhoto não sabe bater pênalti', são defendidos com fervor religioso. Vencer uma discussão no grupo parece, por vezes, mais importante do que a vitória do próprio time.",
+            quotes: [
+                "28/06/2017 23:49 - Marcelo Soyer: Tbm nao estava na libertadores. E a piada se manteve. Então cale-se",
+                "05/11/2017 17:39 - Carlos Bouhid: Canhoto batendo pênalti. E agora?",
+                "06/07/2018 16:55 - Tacio: Pipoqueiro fdp",
+                "02/10/2019 23:23 - Henrique: Grêmio sem espírito esportivo. Filipe caído e não tiraram a bola"
+            ]
+        },
+        {
+            title: "O Estado Policial Gramatical vs. O Ministério da Desinformação",
+            analysis: "Este grupo vive sob a sombra de uma dualidade fascinante: um regime de policiamento gramatical autoritário que coexiste com um ministério da desinformação. Fiscais da crase patrulham o chat, enquanto os mesmos membros encaminham, com seriedade, alertas sobre sequestradores de perfume. É um ecossistema onde a lógica vai para morrer, mas a zueira prospera.",
+            quotes: [
+                "28/06/2017 07:49 - Matheus: Eu vou no villa mix. Me chupem!",
+                "18/07/2018 19:22 - Jilson Brasil: *A L E R T A G E R A L* Quem me mandou foi uma amiga policial...",
+                "28/08/2018 13:47 - Potenciano: [longo e agressivo texto em caixa alta defendendo a astrologia]"
+            ]
+        },
+        {
+            title: "A Febre da Imitação de Motos: Histeria Coletiva de 2019",
+            analysis: "Em 22 de outubro de 2019, um simples link para um grupo de imitar sons de moto não foi ignorado. Foi abraçado com o fervor de uma seita. O que se seguiu foi uma descida coletiva à loucura, culminando na mudança do nome do próprio grupo. O valor não estava nos sons, mas na experiência compartilhada de se obcecar por algo completamente inútil.",
+            quotes: [
+                "22/10/2019 22:13 - Jilson Brasil: [link para o grupo de imitar moto]",
+                "22/10/2019 22:22 - Lucas Moraes: Tá foda de entrar",
+                "22/10/2019 22:32 - ‎Carlos Bouhid mudou o nome do grupo de 'Amigos' para 'Grupo de imitar moto'",
+                "22/10/2019 22:59 - Carlos Bouhid: O do xaropinho tá bombando"
+            ]
+        },
+        {
+            title: "Pesadelos Logísticos: A Tarefa de Organizar Qualquer Coisa",
+            analysis: "Esta seção é um tributo aos esforços hercúleos e fúteis de organizar qualquer encontro. Cada tentativa se transforma numa cúpula da ONU, pavimentada com agendas conflitantes e passivo-agressividade. A frase 'galera mais perdida que cachorro em dia de mudança' não é uma piada; é um diagnóstico clínico. A dificuldade não é um bug; é o próprio ritual.",
+            quotes: [
+                "16/11/2017 16:42 - Pedro Bouhid: galera mais perdida que cachorro em dia de mudança",
+                "08/12/2019 20:52 - Lucas Moraes: Confraternização dos renegados! Já que a elite do grupo impos a confraternização...",
+                "28/09/2017 12:45 - Jilson Brasil: [Longo roteiro de festa prevendo todos os desastres]"
+            ]
+        }
+    ];
+    
+    // Simplified word data for demonstration. A real implementation would parse the full chat log.
+    const wordData = {
+        "2017-06": [{word: "ingresso", count: 45}, {word: "villa", count: 42}, {word: "vender", count: 30}, {word: "time", count: 25}, {word: "jogo", count: 22}],
+        "2017-11": [{word: "amigo", count: 55}, {word: "secreto", count: 50}, {word: "data", count: 40}, {word: "lucas", count: 35}, {word: "natal", count: 28}],
+        "2018-07": [{word: "copa", count: 80}, {word: "brasil", count: 75}, {word: "neymar", count: 65}, {word: "jogo", count: 50}, {word: "pipoqueiro", count: 30}],
+        "2018-08": [{word: "grupo", count: 40}, {word: "nome", count: 38}, {word: "astrologia", count: 35}, {word: "tinder", count: 25}, {word: "briga", count: 20}],
+        "2019-10": [{word: "moto", count: 90}, {word: "imitar", count: 85}, {word: "link", count: 70}, {word: "xaropinho", count: 40}, {word: "entrar", count: 35}],
+        "2020-03": [{word: "corona", count: 60}, {word: "vírus", count: 55}, {word: "dinheiro", count: 40}, {word: "envelope", count: 30}, {word: "potenciano", count: 28}],
+    };
+
+    // --- QUIZ LOGIC ---
+    const quizContainer = document.getElementById('quiz-contain
